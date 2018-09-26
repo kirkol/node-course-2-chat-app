@@ -14,14 +14,15 @@ app.use(express.static(publicPath))
 io.on('connection', (socket) => {
   console.log('New user connected')
 
-  socket.emit('newMessage', {
-    from: 'Server',
-    text: 'Hi, I am your server',
-    createdAt: 123
-  })
-
   socket.on('createMessage', (message) => {
     console.log('createMessage', message)
+    //wyemitowanie eventu do wszystkich polaczen (np. wielu klientow jednoczesnie)
+    //tu: jesli jeden klient wysle wiadomosc na serwer, to dzieki linii nizej dostana ja wszyscy
+    io.emit('newMessage', {
+      from: message.from,
+      text: message.text,
+      createdAt: new Date().getTime()
+    })
   })
 
   socket.on('disconnect', () => {
