@@ -19,19 +19,16 @@ io.on('connection', (socket) => {
   socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app'))
   socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'))
 
-  socket.on('createMessage', (message) => {
-    console.log('createMessage', message)
-    //za pomoca linii ponizej powodujemy, ze wiadomosci wyslane przez nas samych
-    //trafia do wszystkich Z WYJATKIEM nas samych
-    // socket.broadcast.emit('newMessage', {
-    //   from: message.from,
-    //   text: message.text,
-    //   createdAt: new Date().getTime()
-    // })
+  //listener na nadchodzace wiadomosci od klienta
+  //razem z wiadomoscia przekazywana jest tez funkcja (callback),
+  //ktora ma sie wywolac, gdy wszystko bedzie OK i wiadomosc zostanie przyjeta na serwer
+  socket.on('createMessage', (message, callback) => {
     
-    //wyemitowanie eventu do wszystkich polaczen (np. wielu klientow jednoczesnie)
-    //tu: jesli jeden klient wysle wiadomosc na serwer, to dzieki linii nizej dostana ja wszyscy
+    console.log('createMessage', message)
+    
     io.emit('newMessage', generateMessage(message.from, message.text))
+    //wywolanie callbacka ZE STRONY SERWERA - dzieki czemu klient dostanie potwierdzenie, ze wsio OK
+    callback('This is ACK from the server! :)')
   })
 
   socket.on('disconnect', () => {
